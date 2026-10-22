@@ -1,0 +1,206 @@
+{
+  "node_count": 178,
+  "unverified_node_count": 0,
+  "raw_edge_count": 391,
+  "non_object_edges": 0,
+  "missing_endpoint_edges": 0,
+  "dangling_endpoint_edges": 89,
+  "external_reference_edges": 0,
+  "self_loop_edges": 0,
+  "valid_candidate_edges": 302,
+  "exact_duplicate_edges": 0,
+  "directed_unique_endpoint_pairs": 286,
+  "directed_same_endpoint_collapsed_edges": 16,
+  "undirected_unique_endpoint_pairs": 286,
+  "undirected_same_endpoint_collapsed_edges": 16,
+  "same_endpoint_group_count": 16,
+  "relation_variant_groups": 15,
+  "source_file_variant_groups": 0,
+  "source_location_variant_groups": 1,
+  "context_variant_groups": 0,
+  "post_build_graph_type": "Graph",
+  "post_build_node_count": 210,
+  "post_build_edge_count": 374,
+  "post_build_error": "",
+  "producer_suppression": {
+    "path": "C:\\Users\\pdthang\\AppData\\Roaming\\uv\\tools\\graphifyy\\Lib\\site-packages\\graphify\\extract.py",
+    "total_sites": 12,
+    "sites": [
+      {
+        "line": 1789,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 2353,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 2355,
+        "name": "seen_doc_refs",
+        "tuple_arity": 0,
+        "sample": "seen_doc_refs: set[str] = set()"
+      },
+      {
+        "line": 3022,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 3169,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n.get(\"id\") for n in nodes}"
+      },
+      {
+        "line": 4179,
+        "name": "seen_keys",
+        "tuple_arity": 0,
+        "sample": "seen_keys: set[tuple] = set()"
+      },
+      {
+        "line": 4365,
+        "name": "seen_keys",
+        "tuple_arity": 0,
+        "sample": "seen_keys: set[tuple] = set()"
+      },
+      {
+        "line": 7608,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 7716,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 7795,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 8310,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 8311,
+        "name": "seen_edges",
+        "tuple_arity": 4,
+        "sample": "seen_edges: set[tuple[str, str, str, str | None]] = set()"
+      }
+    ],
+    "error": ""
+  },
+  "examples": [
+    {
+      "source": "config_settings_from_platform",
+      "target": "config_settings_from_platform_read",
+      "edge_count": 2,
+      "relations": [
+        "calls",
+        "contains"
+      ],
+      "source_files": [
+        "config.py"
+      ],
+      "source_locations": [
+        "L45",
+        "L58"
+      ],
+      "contexts": [
+        "",
+        "call"
+      ]
+    },
+    {
+      "source": "config_settings_from_platform",
+      "target": "config_settings_from_platform_integer",
+      "edge_count": 2,
+      "relations": [
+        "calls",
+        "contains"
+      ],
+      "source_files": [
+        "config.py"
+      ],
+      "source_locations": [
+        "L47",
+        "L62"
+      ],
+      "contexts": [
+        "",
+        "call"
+      ]
+    },
+    {
+      "source": "config_settings_from_platform",
+      "target": "config_settings_from_platform_number",
+      "edge_count": 2,
+      "relations": [
+        "calls",
+        "contains"
+      ],
+      "source_files": [
+        "config.py"
+      ],
+      "source_locations": [
+        "L52",
+        "L65"
+      ],
+      "contexts": [
+        "",
+        "call"
+      ]
+    },
+    {
+      "source": "tests_test_adapter_test_gateway_fifo_completion_and_routing",
+      "target": "tests_test_adapter_test_gateway_fifo_completion_and_routing_api",
+      "edge_count": 2,
+      "relations": [
+        "contains",
+        "indirect_call"
+      ],
+      "source_files": [
+        "tests/test_adapter.py"
+      ],
+      "source_locations": [
+        "L20",
+        "L24"
+      ],
+      "contexts": [
+        "",
+        "argument"
+      ]
+    },
+    {
+      "source": "tests_test_adapter_test_gateway_fifo_completion_and_routing",
+      "target": "tests_test_adapter_test_gateway_fifo_completion_and_routing_handler",
+      "edge_count": 2,
+      "relations": [
+        "contains",
+        "indirect_call"
+      ],
+      "source_files": [
+        "tests/test_adapter.py"
+      ],
+      "source_locations": [
+        "L26",
+        "L31"
+      ],
+      "contexts": [
+        "",
+        "argument"
+      ]
+    }
+  ]
+}
