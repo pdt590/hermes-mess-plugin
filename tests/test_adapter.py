@@ -32,10 +32,14 @@ async def test_gateway_fifo_completion_and_routing(plugin, tmp_path):
         assert await adapter.connect()
         adapter.client.url = str(server.make_url("/fb/sending/sendContent"))
         try:
-            async with ClientSession() as http:
+            if True:
+                from types import SimpleNamespace
+                from gateway.config import PlatformConfig
+                bridge = importlib.import_module(plugin.__name__ + ".adapter").MessengerIngressAdapter(PlatformConfig())
+                bridge.gateway_runner = SimpleNamespace(_authorization_adapter=lambda platform, profile: adapter)
                 for contact in ("123", "456"):
-                    response = await http.post(f"http://localhost:{adapter.bound_port}/webhooks/manychat", json={"contact_id": contact, "message": "hi", "message_id": "a"}, headers={"X-Webhook-Secret": "secret"})
-                    assert response.status == 202
+                    result = await bridge.send(contact, "hi", metadata={"thread_id": "a"})
+                    assert result.success
                 await asyncio.wait_for(entered.wait(), 3)
                 assert len(observed) == 1
                 states = dict(adapter.inbox.db.execute("SELECT state,count(*) FROM inbox GROUP BY state"))
@@ -90,17 +94,15 @@ def test_register_platform(plugin):
     assert ctx.registration["validate_config"](PlatformConfig(extra={"token": "t", "webhook_secret": "s"}))
 
 
-async def test_bind_failure_cleans_resources(plugin, tmp_path):
-    import socket
+async def test_no_plugin_listener_and_database_failure_cleans_resources(plugin, tmp_path):
     adapter = make_adapter(plugin, tmp_path)
-    from dataclasses import replace
-    with socket.socket() as occupied:
-        occupied.bind(("0.0.0.0", 0))
-        occupied.listen()
-        adapter.settings = replace(adapter.settings, host="0.0.0.0", port=occupied.getsockname()[1])
-        assert await adapter.connect() is False
-        assert adapter.inbox is None and adapter.client is None and adapter._http is None
+    assert await adapter.connect()
+    assert adapter.bound_port is None
     await adapter.disconnect()
+    from dataclasses import replace
+    adapter.settings = replace(adapter.settings, database=tmp_path)
+    assert await adapter.connect() is False
+    assert adapter.inbox is None and adapter.client is None and adapter._http is None
 
 
 async def test_watchdog_pauses_ingress_without_losing_event(plugin, tmp_path):
@@ -119,9 +121,11 @@ async def test_watchdog_pauses_ingress_without_losing_event(plugin, tmp_path):
                 break
             await asyncio.sleep(0.01)
         assert not adapter._ready
-        async with ClientSession() as http:
-            assert (await http.get(f"http://localhost:{adapter.bound_port}/healthz")).status == 503
-            assert (await http.post(f"http://localhost:{adapter.bound_port}/webhooks/manychat", json={"contact_id": "123", "message": "hi"}, headers={"X-Webhook-Secret": "secret"})).status == 503
+        from types import SimpleNamespace
+        from gateway.config import PlatformConfig
+        bridge = importlib.import_module(plugin.__name__ + ".adapter").MessengerIngressAdapter(PlatformConfig())
+        bridge.gateway_runner = SimpleNamespace(_authorization_adapter=lambda platform, profile: adapter)
+        assert not (await bridge.send("123", "another")).success
         assert adapter.inbox.db.execute("SELECT state FROM inbox").fetchone()[0] == "processing"
     finally:
         await adapter.disconnect()

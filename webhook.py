@@ -1,14 +1,5 @@
-"""ManyChat External Request ingress. Payload is our explicit contract."""
-import hmac
-import json
+"""Native Hermes webhook route and shared ingress payload validation. No HTTP listener."""
 import re
-import sqlite3
-from aiohttp import web
-
-try:
-    from .store import Conflict, Full
-except ImportError:  # standalone unit tests
-    from store import Conflict, Full
 
 
 def normalize_payload(data):
@@ -34,33 +25,16 @@ def normalize_payload(data):
             "channel": "facebook", "is_echo": data.get("is_echo", False)}
 
 
-def create_app(settings, inbox, wake_worker, ready=lambda: True):
-    app = web.Application(client_max_size=65536)
-
-    async def receive(request):
-        supplied = request.headers.get("X-Webhook-Secret", "").encode("utf-8")
-        if not hmac.compare_digest(supplied, settings.secret.encode("utf-8")):
-            return web.json_response({"error": "unauthorized"}, status=401)
-        if not ready():
-            return web.json_response({"error": "unavailable"}, status=503, headers={"Retry-After": "5"})
-        try:
-            payload = normalize_payload(await request.json())
-        except (ValueError, UnicodeError, json.JSONDecodeError):
-            return web.json_response({"error": "invalid_payload"}, status=400)
-        if payload["is_echo"]:
-            return web.json_response({"status": "ignored"})
-        try:
-            receipt = inbox.enqueue(payload)
-        except Conflict:
-            return web.json_response({"error": "id_conflict"}, status=409)
-        except (Full, sqlite3.Error):
-            return web.json_response({"error": "unavailable"}, status=503, headers={"Retry-After": "5"})
-        wake_worker()
-        return web.json_response({"status": "accepted", "id": receipt.id, "duplicate": receipt.duplicate}, status=202)
-
-    async def health(request):
-        return web.json_response({"status": "ok" if ready() else "unavailable"}, status=200 if ready() else 503)
-
-    app.router.add_post("/webhooks/manychat", receive)
-    app.router.add_get("/healthz", health)
-    return app
+def manychat_route():
+    """Hermes core authenticates and renders fields without JSON interpolation."""
+    return {
+        "prompt": "{message}",
+        "deliver_only": True,
+        "deliver": "messenger_ingress",
+        "deliver_extra": {"chat_id": "{contact_id}", "thread_id": "{message_id}"},
+        "filters": [
+            {"field": "is_echo", "not_equals": True},
+            {"field": "contact_id", "regex": "^[1-9][0-9]{0,29}$"},
+            {"field": "message", "regex": r"\S"},
+        ],
+    }

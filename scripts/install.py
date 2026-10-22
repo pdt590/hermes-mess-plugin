@@ -10,7 +10,6 @@ import json
 import os
 from pathlib import Path
 import re
-import secrets
 import stat
 import subprocess
 import sys
@@ -29,7 +28,7 @@ def default_home(environ=None, platform=None, user_home=None):
 
 
 def ensure_dependencies():
-    for module, requirement in (("aiohttp", "aiohttp>=3.9,<4"), ("ruamel.yaml", "ruamel.yaml>=0.18,<0.20")):
+    for module, requirement in (("aiohttp", "aiohttp>=3.9,<4"), ("ruamel.yaml", "ruamel.yaml>=0.18,<0.20"), ("dotenv", "python-dotenv>=1,<2")):
         try:
             importlib.import_module(module)
         except ModuleNotFoundError:
@@ -49,10 +48,11 @@ def _mapping(parent, key):
     return parent[key]
 
 
-def _config_content(original):
+def _config_content(original, environ):
     from collections.abc import MutableMapping, MutableSequence
     from ruamel.yaml import YAML
     from ruamel.yaml.comments import CommentedMap, CommentedSeq
+    import importlib.util
     yaml = YAML()
     yaml.preserve_quotes = True
     yaml.allow_duplicate_keys = False
@@ -67,61 +67,93 @@ def _config_content(original):
     before = io.StringIO()
     yaml.dump(config, before)
     plugins = _mapping(config, "plugins")
-    if "enabled" not in plugins or plugins["enabled"] is None:
+    if plugins.get("enabled") is None:
         plugins["enabled"] = CommentedSeq()
     if not isinstance(plugins["enabled"], MutableSequence):
-        raise ValueError("config.yaml: plugins.enabled must be a list; no files changed")
+        raise ValueError("config.yaml: plugins.enabled must be a list")
     if "messenger" not in plugins["enabled"]:
         plugins["enabled"].append("messenger")
-    messenger = _mapping(_mapping(config, "platforms"), "messenger")
+    platforms = _mapping(config, "platforms")
+    messenger = _mapping(platforms, "messenger")
     messenger.setdefault("enabled", True)
     extra = _mapping(messenger, "extra")
-    for key, value in {"host": "0.0.0.0", "port": 8788, "capacity": 1000,
-                       "retention_seconds": 604800, "timeout": 20, "processing_timeout": 600}.items():
+    for container in (messenger, extra):
+        for key in ("host", "port", "webhook_secret"):
+            container.pop(key, None)
+    for key,value in {"capacity":1000,"retention_seconds":604800,"timeout":20,"processing_timeout":600}.items():
         if key not in messenger:
-            extra.setdefault(key, value)
+            extra.setdefault(key,value)
+    ingress = _mapping(platforms,"messenger_ingress")
+    ingress["enabled"] = True
+    webhook = _mapping(platforms,"webhook")
+    webhook["enabled"] = True
+    web_extra = _mapping(webhook,"extra")
+    web_extra["port"] = int(environ["WEBHOOK_PORT"])
+    web_extra.setdefault("host","0.0.0.0")
+    routes = _mapping(web_extra,"routes")
+    existing_route = routes.get("manychat",{})
+    if not isinstance(existing_route,MutableMapping):
+        raise ValueError("Existing manychat route must be a mapping")
+    if existing_route and existing_route.get("deliver") != "messenger_ingress":
+        raise ValueError("Existing manychat route conflicts; migrate or rename it first")
+    secret = environ["MESSENGER_HERMES_WEBHOOK_SECRET"]
+    spec = importlib.util.spec_from_file_location("messenger_route_configuration",Path(__file__).resolve().parents[1]/"webhook.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    route = module.manychat_route()
+    route["secret"] = str(secret)
+    routes["manychat"] = route
     output = io.StringIO()
-    yaml.dump(config, output)
-    # Do not rewrite merely to normalize YAML formatting on a second run.
-    content = original if before.getvalue() == output.getvalue() else output.getvalue().encode("utf-8")
-    return content, {**messenger, **extra}
+    yaml.dump(config,output)
+    content = original if before.getvalue()==output.getvalue() else output.getvalue().encode("utf-8")
+    return content,{**messenger,**extra,"hermes_webhook_secret":str(secret)}
 
 
-def _env_content(original, environ, platform_values):
-    text = original.decode("utf-8-sig")
-    keys = set(re.findall(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=", text, re.MULTILINE))
-    defaults = {
-        "MANYCHAT_API_TOKEN": "",
-        "MESSENGER_WEBHOOK_SECRET": None,
-        "MESSENGER_ALLOWED_USERS": "",
-        "MESSENGER_ALLOW_ALL_USERS": "false",
-        "MESSENGER_HOST": "0.0.0.0",
-        "MESSENGER_PORT": "8788",
-        "MESSENGER_CAPACITY": "1000",
-        "MESSENGER_RETENTION_SECONDS": "604800",
-        "MESSENGER_API_TIMEOUT": "20",
-        "MESSENGER_PROCESSING_TIMEOUT": "600",
-        "MESSENGER_DATABASE": "",
-    }
-    lines = []
-    config_keys = {"MANYCHAT_API_TOKEN": "token", "MESSENGER_WEBHOOK_SECRET": "webhook_secret",
-                   "MESSENGER_HOST": "host", "MESSENGER_PORT": "port", "MESSENGER_CAPACITY": "capacity",
-                   "MESSENGER_RETENTION_SECONDS": "retention_seconds", "MESSENGER_API_TIMEOUT": "timeout",
-                   "MESSENGER_PROCESSING_TIMEOUT": "processing_timeout", "MESSENGER_DATABASE": "database"}
-    for key, default in defaults.items():
-        if key in keys:
+def parse_env(content):
+    from dotenv.parser import parse_stream
+    bindings = list(parse_stream(io.StringIO(content.decode("utf-8-sig"))))
+    if any(binding.error for binding in bindings):
+        raise ValueError("Invalid dotenv syntax")
+    return bindings
+
+
+def read_template(path):
+    values = {}
+    for binding in parse_env(Path(path).read_bytes()):
+        if binding.key is None:
             continue
-        configured = platform_values.get(config_keys.get(key))
-        value = environ.get(key, configured if configured is not None else default)
-        if value is None:
-            value = secrets.token_urlsafe(32)
-        lines.append(f"{key}={json.dumps(str(value), ensure_ascii=False)}")
-    if not lines:
-        return original
+        if binding.value is None or binding.key in values:
+            raise ValueError("Template needs unique KEY=value assignments")
+        values[binding.key] = binding.value
+    if not values.get("MESSENGER_HERMES_WEBHOOK_SECRET"):
+        raise ValueError("Set the route secret in .env.example")
+    if not 1 <= int(values.get("WEBHOOK_PORT", "0")) <= 65535:
+        raise ValueError("Set WEBHOOK_PORT in .env.example")
+    return values
+
+
+def _env_content(original, values, platform_values=None):
+    bindings = parse_env(original)
     newline = "\r\n" if b"\r\n" in original else "\n"
-    suffix = ("" if not text or text.endswith(("\n", "\r")) else newline)
-    suffix += newline + "# Messenger plugin (generated by setup)" + newline + newline.join(lines) + newline
-    return original + suffix.encode("utf-8")
+    seen = set()
+    chunks = []
+    retired = {"MESSENGER_HOST", "MESSENGER_PORT", "MESSENGER_WEBHOOK_SECRET"}
+    for binding in bindings:
+        key = binding.key
+        if key in values:
+            if key not in seen:
+                chunks.append(f"{key}={json.dumps(values[key],ensure_ascii=False)}"+newline)
+                seen.add(key)
+        elif key not in retired:
+            chunks.append(binding.original.string)
+    text = "".join(chunks)
+    missing = [key for key in values if key not in seen]
+    if missing:
+        if text and not text.endswith(("\n","\r")):
+            text += newline
+        text += newline + "# Messenger settings from .env.example" + newline
+        text += "".join(f"{key}={json.dumps(values[key],ensure_ascii=False)}"+newline for key in missing)
+    return text.encode("utf-8")
 
 
 def _atomic_write(path, content):
@@ -139,27 +171,52 @@ def _atomic_write(path, content):
             os.unlink(temporary)
 
 
-def configure(home, environ=None):
-    environ = os.environ if environ is None else environ
+def configure(home, template_path=None):
     home = Path(home).expanduser().resolve()
+    template_path = Path(template_path) if template_path else Path(__file__).resolve().parents[1] / ".env.example"
+    values = read_template(template_path)
     env_path, config_path = home / ".env", home / "config.yaml"
     for path in (env_path, config_path):
         if path.is_symlink():
             raise ValueError(f"Refusing to replace symlink: {path}")
     env_before = env_path.read_bytes() if env_path.exists() else b""
     config_before = config_path.read_bytes() if config_path.exists() else b""
-    # Validate both files before creating backups or changing either file.
-    config_after, platform_values = _config_content(config_before)
-    env_after = _env_content(env_before, environ, platform_values)
-    edits = [(path, before, after) for path, before, after in (
-        (env_path, env_before, env_after), (config_path, config_before, config_after)
-    ) if before != after]
+    config_after, _ = _config_content(config_before, values)
+    env_after = _env_content(env_before, values)
+    from ruamel.yaml import YAML
+    state_path = home / "plugin-data" / "messenger" / "setup-state.json"
+    if state_path.is_symlink() or not state_path.resolve().is_relative_to(home):
+        raise ValueError("Setup state must not be a symlink")
+    if state_path.exists():
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+    else:
+        old = YAML().load(config_before.decode("utf-8-sig")) or {}
+        webhook = (old.get("platforms") or {}).get("webhook") or {}
+        env_old = {b.key:b.value for b in parse_env(env_before) if b.key}
+        state = {"version":1,"webhook_existed":bool(webhook),"shared_before":{},
+                 "webhook_port_env_before":{"exists":"WEBHOOK_PORT" in env_old,"value":env_old.get("WEBHOOK_PORT")},"env_keys":[]}
+        for key in ("enabled","extra.host","extra.port"):
+            parent = webhook if key=="enabled" else webhook.get("extra",{})
+            leaf = key.split(".")[-1]
+            state["shared_before"][key] = {"exists":leaf in parent,"value":parent.get(leaf)}
+    installed = YAML().load(config_after.decode("utf-8"))["platforms"]["webhook"]
+    state["shared_installed"] = {"enabled":installed.get("enabled"),"extra.host":installed["extra"].get("host"),"extra.port":installed["extra"]["port"]}
+    state["env_keys"] = sorted(set(state["env_keys"]) | set(values))
+    state["webhook_port_env_installed"] = values["WEBHOOK_PORT"]
+    state_bytes = (json.dumps(state,indent=2,ensure_ascii=False)+"\n").encode("utf-8")
+    state_before = state_path.read_bytes() if state_path.exists() else b""
+    return commit_changes(home,[(env_path,env_before,env_after),(config_path,config_before,config_after),(state_path,state_before,state_bytes)])
+
+
+def commit_changes(home, candidates):
+    edits = [(path,before,after) for path,before,after in candidates if before != after]
     result = {"changed": [], "backups": []}
     if not edits:
         return result
     home.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     for path, before, after in edits:
+        path.parent.mkdir(parents=True, exist_ok=True)
         if path.exists():
             backup = path.with_name(path.name + ".bak." + stamp)
             # Exclusive creation and owner-only mode also protect secret backups.
@@ -196,7 +253,7 @@ def main():
     try:
         ensure_dependencies()
         result = configure(home)
-    except (OSError, ValueError, subprocess.CalledProcessError) as exc:
+    except (OSError, ValueError, ImportError, subprocess.CalledProcessError) as exc:
         # Do not echo YAML errors or values containing credentials.
         print(f"Setup failed ({type(exc).__name__}); check file permissions, YAML structure and Python dependencies. No credential values are printed.", file=sys.stderr)
         return 1
@@ -206,7 +263,7 @@ def main():
         print(f"Updated: {path}")
     if not result["changed"]:
         print("Settings already present; no file changes.")
-    print("Fill MANYCHAT_API_TOKEN and allowed users in .env; copy the webhook secret into ManyChat. Existing values are preserved. Restart Hermes when ready.")
+    print("Settings synchronized from .env.example. Edit that file and rerun setup to change values. Configure the same route secret in ManyChat. Restart Hermes when ready.")
     return 0
 
 

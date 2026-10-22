@@ -12,16 +12,16 @@
     "semantic_hash": "34e48490b454d5df0e52d71de16cbb77"
   },
   "adapter.py": {
-    "mtime": 1792641825.9346168,
-    "seen": 1792644407.9978828,
-    "ast_hash": "9982be58155a2b07457d0cbbe3f1b99d",
-    "semantic_hash": "9982be58155a2b07457d0cbbe3f1b99d"
+    "mtime": 1792652393.3653924,
+    "seen": 1792652772.1963084,
+    "ast_hash": "d7c7d30bb31f253a215c28c92d2184b6",
+    "semantic_hash": ""
   },
   "config.py": {
-    "mtime": 1792643007.3193028,
-    "seen": 1792644407.9978848,
-    "ast_hash": "b192010828f5514ab57f3f5a4ce55fce",
-    "semantic_hash": "b192010828f5514ab57f3f5a4ce55fce"
+    "mtime": 1792652375.7742689,
+    "seen": 1792652772.1963282,
+    "ast_hash": "ab7a7a4412bb0eb5d1496318cba1f33f",
+    "semantic_hash": ""
   },
   "manychat.py": {
     "mtime": 1792641651.7034333,
@@ -30,10 +30,10 @@
     "semantic_hash": "c906dde3f5607e483e8113c58bc1da05"
   },
   "scripts/install.py": {
-    "mtime": 1792643798.4329755,
-    "seen": 1792644407.997888,
-    "ast_hash": "82dbbfbc37b96da2b301679ba4fd5596",
-    "semantic_hash": "82dbbfbc37b96da2b301679ba4fd5596"
+    "mtime": 1792654228.6715982,
+    "seen": 1792654330.1350663,
+    "ast_hash": "6fd951834966d0fb472e544cf1e90f40",
+    "semantic_hash": ""
   },
   "scripts/test_with_hermes.py": {
     "mtime": 1792641660.147879,
@@ -66,22 +66,22 @@
     "semantic_hash": "be14aef720b93a3f45899253011c05c4"
   },
   "tests/test_adapter.py": {
-    "mtime": 1792643685.1853337,
-    "seen": 1792644407.9978976,
-    "ast_hash": "b979ba3397f66623c23b3a1264a44ad5",
-    "semantic_hash": "b979ba3397f66623c23b3a1264a44ad5"
+    "mtime": 1792652435.957918,
+    "seen": 1792652772.196347,
+    "ast_hash": "3592420f715025359fb4f0c4e502dde4",
+    "semantic_hash": ""
   },
   "tests/test_config.py": {
-    "mtime": 1792641229.0854168,
-    "seen": 1792644407.9978995,
-    "ast_hash": "217f05ac8b03fa5c10de028442bdd115",
-    "semantic_hash": "217f05ac8b03fa5c10de028442bdd115"
+    "mtime": 1792652435.955914,
+    "seen": 1792652772.196349,
+    "ast_hash": "4a29d007fa070c06e20c325f98e4a01e",
+    "semantic_hash": ""
   },
   "tests/test_install.py": {
-    "mtime": 1792643805.1802163,
-    "seen": 1792644407.9979007,
-    "ast_hash": "5a27218fea2359a386e14ed390fdfc04",
-    "semantic_hash": "5a27218fea2359a386e14ed390fdfc04"
+    "mtime": 1792654272.3510544,
+    "seen": 1792654330.135092,
+    "ast_hash": "d07c6284a1a5f083a692576f37b96319",
+    "semantic_hash": ""
   },
   "tests/test_manychat.py": {
     "mtime": 1792641626.0469875,
@@ -102,16 +102,16 @@
     "semantic_hash": "3d68256f57c586471746b8dd4b049ede"
   },
   "tests/test_webhook.py": {
-    "mtime": 1792641628.3695202,
-    "seen": 1792644407.9979067,
-    "ast_hash": "0e8ca67801d08972b90ffa4476a91732",
-    "semantic_hash": "0e8ca67801d08972b90ffa4476a91732"
+    "mtime": 1792652435.957918,
+    "seen": 1792652772.1963618,
+    "ast_hash": "4ab59e12cc0c88ad32b72f10f2db6c49",
+    "semantic_hash": ""
   },
   "webhook.py": {
-    "mtime": 1792641649.5226064,
-    "seen": 1792644407.997908,
-    "ast_hash": "a231cac4f550cf8bf96b1126ac11f063",
-    "semantic_hash": "a231cac4f550cf8bf96b1126ac11f063"
+    "mtime": 1792652359.5658083,
+    "seen": 1792652772.1963632,
+    "ast_hash": "c5a8a334db1a0c044c8a5372cfce313f",
+    "semantic_hash": ""
   },
   "AGENTS.md": {
     "mtime": 1792644067.2790875,
@@ -120,28 +120,28 @@
     "semantic_hash": "f36539ecc9af68f33ebd72770ce4a19e"
   },
   "INSTALLATION.md": {
-    "mtime": 1792643948.1349275,
-    "seen": 1792644407.9979112,
-    "ast_hash": "dd04e1029880a801335a6959f399465b",
-    "semantic_hash": "dd04e1029880a801335a6959f399465b"
+    "mtime": 1792654838.9623146,
+    "seen": 1792654860.4045644,
+    "ast_hash": "ffe34ca0f57ad1f9caa82d3103740242",
+    "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792644630.962721,
-    "seen": 1792644639.8471723,
-    "ast_hash": "6e8c1d149eb62d6a75dc7e15d01bdb8f",
+    "mtime": 1792653130.9630418,
+    "seen": 1792654330.1351528,
+    "ast_hash": "8f4939e8c721e15fbf84c30a33467b33",
     "semantic_hash": ""
   },
   "plugin.yaml": {
-    "mtime": 1792643011.712406,
-    "seen": 1792644407.9979148,
-    "ast_hash": "ec522a51af02306d83370720dcfe1b4b",
-    "semantic_hash": "ec522a51af02306d83370720dcfe1b4b"
+    "mtime": 1792652494.9457376,
+    "seen": 1792652772.1963708,
+    "ast_hash": "8bfcd07d1f322eff924aafb9a22aa497",
+    "semantic_hash": ""
   },
   "requirements-dev.txt": {
-    "mtime": 1792643726.8001215,
-    "seen": 1792644407.9979162,
-    "ast_hash": "6eb71a64814d4b7191eb9ea803d3fd7d",
-    "semantic_hash": "6eb71a64814d4b7191eb9ea803d3fd7d"
+    "mtime": 1792654075.0981455,
+    "seen": 1792654330.1351628,
+    "ast_hash": "e0bd444dcce6ebcb8dbc1dac5bf1a174",
+    "semantic_hash": ""
   },
   "requirements.txt": {
     "mtime": 1792641662.4213052,
@@ -168,9 +168,39 @@
     "semantic_hash": "07c6c48a036e368889167204d7bde3c0"
   },
   "system-design/progress.md": {
-    "mtime": 1792643855.3764257,
-    "seen": 1792644407.9979234,
-    "ast_hash": "9678dc623f0b13f6e9f822f7f96c3f00",
-    "semantic_hash": "9678dc623f0b13f6e9f822f7f96c3f00"
+    "mtime": 1792654496.3798873,
+    "seen": 1792654860.4045863,
+    "ast_hash": "e1b68b1628138d5a13b039efa4edf375",
+    "semantic_hash": ""
+  },
+  "tests/test_native_webhook.py": {
+    "mtime": 1792652659.183137,
+    "seen": 1792652772.1963549,
+    "ast_hash": "67a479c3e3c674af0a152e02a61ff725",
+    "semantic_hash": ""
+  },
+  "scripts/uninstall.py": {
+    "mtime": 1792654884.0794413,
+    "seen": 1792654892.601852,
+    "ast_hash": "5097f8d76bbca061950ecddc6ac4f139",
+    "semantic_hash": ""
+  },
+  "tests/test_setup_lifecycle.py": {
+    "mtime": 1792654817.1292467,
+    "seen": 1792654860.4045467,
+    "ast_hash": "9ba77ba0db44af1e183db853692131c5",
+    "semantic_hash": ""
+  },
+  "uninstall.ps1": {
+    "mtime": 1792654336.698258,
+    "seen": 1792654378.2556324,
+    "ast_hash": "cee1742f7d267b7bf6c4066ef9477512",
+    "semantic_hash": ""
+  },
+  "uninstall.sh": {
+    "mtime": 1792654338.8553202,
+    "seen": 1792654378.2556365,
+    "ast_hash": "47757f10c6876a5bf0ab9cc3ef245521",
+    "semantic_hash": ""
   }
 }

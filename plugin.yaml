@@ -1,14 +1,11 @@
 name: messenger
 label: Facebook Messenger (ManyChat)
-kind: platform
-version: 0.1.0
+kind: standalone
+version: 0.2.0
 description: Facebook Messenger chatbot using ManyChat webhooks and the Hermes gateway.
 requires_env:
   - name: MANYCHAT_API_TOKEN
     description: ManyChat Page API Bearer token
-    password: true
-  - name: MESSENGER_WEBHOOK_SECRET
-    description: Shared secret for ManyChat External Request X-Webhook-Secret header
     password: true
 optional_env:
   - name: MESSENGER_ALLOWED_USERS
@@ -16,12 +13,6 @@ optional_env:
     password: false
   - name: MESSENGER_ALLOW_ALL_USERS
     description: Allow all customers to use the agent (true/false, explicit opt-in)
-    password: false
-  - name: MESSENGER_HOST
-    description: Listener host (default 0.0.0.0)
-    password: false
-  - name: MESSENGER_PORT
-    description: Listener port (default 8788)
     password: false
   - name: MESSENGER_DATABASE
     description: Path to persistent inbox SQLite file

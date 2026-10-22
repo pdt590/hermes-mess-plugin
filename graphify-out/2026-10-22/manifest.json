@@ -1,0 +1,206 @@
+{
+  ".codex/hooks.json": {
+    "mtime": 1792644067.2850854,
+    "seen": 1792644407.9978724,
+    "ast_hash": "5ebef3dd159986e465ab65e4014107ec",
+    "semantic_hash": "5ebef3dd159986e465ab65e4014107ec"
+  },
+  "__init__.py": {
+    "mtime": 1792641485.0252845,
+    "seen": 1792644407.9978795,
+    "ast_hash": "34e48490b454d5df0e52d71de16cbb77",
+    "semantic_hash": "34e48490b454d5df0e52d71de16cbb77"
+  },
+  "adapter.py": {
+    "mtime": 1792652393.3653924,
+    "seen": 1792652772.1963084,
+    "ast_hash": "d7c7d30bb31f253a215c28c92d2184b6",
+    "semantic_hash": ""
+  },
+  "config.py": {
+    "mtime": 1792652375.7742689,
+    "seen": 1792652772.1963282,
+    "ast_hash": "ab7a7a4412bb0eb5d1496318cba1f33f",
+    "semantic_hash": ""
+  },
+  "manychat.py": {
+    "mtime": 1792641651.7034333,
+    "seen": 1792644407.9978864,
+    "ast_hash": "c906dde3f5607e483e8113c58bc1da05",
+    "semantic_hash": "c906dde3f5607e483e8113c58bc1da05"
+  },
+  "scripts/install.py": {
+    "mtime": 1792654228.6715982,
+    "seen": 1792654330.1350663,
+    "ast_hash": "6fd951834966d0fb472e544cf1e90f40",
+    "semantic_hash": ""
+  },
+  "scripts/test_with_hermes.py": {
+    "mtime": 1792641660.147879,
+    "seen": 1792644407.9978895,
+    "ast_hash": "47034a2b6b8bdc8b7dfd41d245b2c812",
+    "semantic_hash": "47034a2b6b8bdc8b7dfd41d245b2c812"
+  },
+  "setup.ps1": {
+    "mtime": 1792643660.0403523,
+    "seen": 1792644407.9978912,
+    "ast_hash": "1a7706a9f3e78e87e81746eb5aa6f904",
+    "semantic_hash": "1a7706a9f3e78e87e81746eb5aa6f904"
+  },
+  "setup.sh": {
+    "mtime": 1792643662.1743886,
+    "seen": 1792644407.9978926,
+    "ast_hash": "0744e343ee9f1aebc65c04e64c2a138b",
+    "semantic_hash": "0744e343ee9f1aebc65c04e64c2a138b"
+  },
+  "store.py": {
+    "mtime": 1792641261.6749015,
+    "seen": 1792644407.9978943,
+    "ast_hash": "fbacaaf7164ad6771ebd6e059a31f8aa",
+    "semantic_hash": "fbacaaf7164ad6771ebd6e059a31f8aa"
+  },
+  "tests/conftest.py": {
+    "mtime": 1792641529.9446838,
+    "seen": 1792644407.997896,
+    "ast_hash": "be14aef720b93a3f45899253011c05c4",
+    "semantic_hash": "be14aef720b93a3f45899253011c05c4"
+  },
+  "tests/test_adapter.py": {
+    "mtime": 1792652435.957918,
+    "seen": 1792652772.196347,
+    "ast_hash": "3592420f715025359fb4f0c4e502dde4",
+    "semantic_hash": ""
+  },
+  "tests/test_config.py": {
+    "mtime": 1792652435.955914,
+    "seen": 1792652772.196349,
+    "ast_hash": "4a29d007fa070c06e20c325f98e4a01e",
+    "semantic_hash": ""
+  },
+  "tests/test_install.py": {
+    "mtime": 1792654272.3510544,
+    "seen": 1792654330.135092,
+    "ast_hash": "d07c6284a1a5f083a692576f37b96319",
+    "semantic_hash": ""
+  },
+  "tests/test_manychat.py": {
+    "mtime": 1792641626.0469875,
+    "seen": 1792644407.9979024,
+    "ast_hash": "7df86231653e78652357057c50725589",
+    "semantic_hash": "7df86231653e78652357057c50725589"
+  },
+  "tests/test_plugin.py": {
+    "mtime": 1792641763.2320037,
+    "seen": 1792644407.9979038,
+    "ast_hash": "b47272557d8efb68e59be987503dadef",
+    "semantic_hash": "b47272557d8efb68e59be987503dadef"
+  },
+  "tests/test_store.py": {
+    "mtime": 1792641226.8108656,
+    "seen": 1792644407.9979055,
+    "ast_hash": "3d68256f57c586471746b8dd4b049ede",
+    "semantic_hash": "3d68256f57c586471746b8dd4b049ede"
+  },
+  "tests/test_webhook.py": {
+    "mtime": 1792652435.957918,
+    "seen": 1792652772.1963618,
+    "ast_hash": "4ab59e12cc0c88ad32b72f10f2db6c49",
+    "semantic_hash": ""
+  },
+  "webhook.py": {
+    "mtime": 1792652359.5658083,
+    "seen": 1792652772.1963632,
+    "ast_hash": "c5a8a334db1a0c044c8a5372cfce313f",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1792644067.2790875,
+    "seen": 1792644407.9979098,
+    "ast_hash": "f36539ecc9af68f33ebd72770ce4a19e",
+    "semantic_hash": "f36539ecc9af68f33ebd72770ce4a19e"
+  },
+  "INSTALLATION.md": {
+    "mtime": 1792654838.9623146,
+    "seen": 1792654860.4045644,
+    "ast_hash": "ffe34ca0f57ad1f9caa82d3103740242",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1792653130.9630418,
+    "seen": 1792654330.1351528,
+    "ast_hash": "8f4939e8c721e15fbf84c30a33467b33",
+    "semantic_hash": ""
+  },
+  "plugin.yaml": {
+    "mtime": 1792652494.9457376,
+    "seen": 1792652772.1963708,
+    "ast_hash": "8bfcd07d1f322eff924aafb9a22aa497",
+    "semantic_hash": ""
+  },
+  "requirements-dev.txt": {
+    "mtime": 1792654075.0981455,
+    "seen": 1792654330.1351628,
+    "ast_hash": "e0bd444dcce6ebcb8dbc1dac5bf1a174",
+    "semantic_hash": ""
+  },
+  "requirements.txt": {
+    "mtime": 1792641662.4213052,
+    "seen": 1792644407.9979177,
+    "ast_hash": "2a5f064421d83fe1f1fec34babc7e248",
+    "semantic_hash": "2a5f064421d83fe1f1fec34babc7e248"
+  },
+  "system-design/architecture.md": {
+    "mtime": 1792639413.7804668,
+    "seen": 1792644407.997919,
+    "ast_hash": "c43d43e473fd84934f9ecb3698bff081",
+    "semantic_hash": "c43d43e473fd84934f9ecb3698bff081"
+  },
+  "system-design/implementation-plan.md": {
+    "mtime": 1792643017.0322087,
+    "seen": 1792644407.9979205,
+    "ast_hash": "0229dfcc86af6128ff127a4172455169",
+    "semantic_hash": "0229dfcc86af6128ff127a4172455169"
+  },
+  "system-design/implementation-spec.md": {
+    "mtime": 1792641910.0727072,
+    "seen": 1792644407.9979217,
+    "ast_hash": "07c6c48a036e368889167204d7bde3c0",
+    "semantic_hash": "07c6c48a036e368889167204d7bde3c0"
+  },
+  "system-design/progress.md": {
+    "mtime": 1792654496.3798873,
+    "seen": 1792654860.4045863,
+    "ast_hash": "e1b68b1628138d5a13b039efa4edf375",
+    "semantic_hash": ""
+  },
+  "tests/test_native_webhook.py": {
+    "mtime": 1792652659.183137,
+    "seen": 1792652772.1963549,
+    "ast_hash": "67a479c3e3c674af0a152e02a61ff725",
+    "semantic_hash": ""
+  },
+  "scripts/uninstall.py": {
+    "mtime": 1792654813.2540383,
+    "seen": 1792654860.4045165,
+    "ast_hash": "c41db5e3556ef7fada02c21d149bd53e",
+    "semantic_hash": ""
+  },
+  "tests/test_setup_lifecycle.py": {
+    "mtime": 1792654817.1292467,
+    "seen": 1792654860.4045467,
+    "ast_hash": "9ba77ba0db44af1e183db853692131c5",
+    "semantic_hash": ""
+  },
+  "uninstall.ps1": {
+    "mtime": 1792654336.698258,
+    "seen": 1792654378.2556324,
+    "ast_hash": "cee1742f7d267b7bf6c4066ef9477512",
+    "semantic_hash": ""
+  },
+  "uninstall.sh": {
+    "mtime": 1792654338.8553202,
+    "seen": 1792654378.2556365,
+    "ast_hash": "47757f10c6876a5bf0ab9cc3ef245521",
+    "semantic_hash": ""
+  }
+}

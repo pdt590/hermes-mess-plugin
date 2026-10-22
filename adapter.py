@@ -4,7 +4,6 @@ import contextlib
 import logging
 
 import aiohttp
-from aiohttp import web
 from gateway.config import Platform
 from gateway.platforms.base import BasePlatformAdapter, SendResult
 from gateway.platforms.event import MessageEvent, ProcessingOutcome
@@ -13,7 +12,7 @@ from gateway.platforms._shared import extra_or_secret, get_scoped_secret, seed_e
 from .config import Settings
 from .manychat import ManyChatClient
 from .store import Inbox
-from .webhook import create_app
+from .webhook import normalize_payload, manychat_route
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ class MessengerAdapter(BasePlatformAdapter):
     def __init__(self, config):
         super().__init__(config, Platform("messenger"))
         self.settings = Settings.from_platform(config)
-        self.inbox = self.client = self._http = self._runner = self._worker_task = None
+        self.inbox = self.client = self._http = self._worker_task = None
         self._wake = asyncio.Event()
         self._completion = {}
         self._stopping = False
@@ -39,28 +38,19 @@ class MessengerAdapter(BasePlatformAdapter):
             self.inbox.prune()
             self._http = aiohttp.ClientSession()
             self.client = ManyChatClient(self._http, self.settings.token, timeout=self.settings.timeout)
-            app = create_app(self.settings, self.inbox, self._wake.set, ready=lambda: self._ready)
-            self._runner = web.AppRunner(app, access_log=None)
-            await self._runner.setup()
-            site = web.TCPSite(self._runner, self.settings.host, self.settings.port)
-            await site.start()
-            self.bound_port = self._runner.addresses[0][1]
             self._ready = True
             self._mark_connected()
             self._worker_task = asyncio.create_task(self._work(), name="messenger-inbox")
             self._wake.set()
             return True
         except Exception:
-            logger.error("Messenger connection failed; verify configuration, database and listener port")
+            logger.error("Messenger connection failed; verify configuration and database")
             await self.disconnect()
             return False
 
     async def disconnect(self):
         self._stopping = True
         self._ready = False
-        if self._runner is not None:
-            await self._runner.cleanup()
-            self._runner = None
         if self._worker_task is not None:
             self._worker_task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
@@ -168,17 +158,23 @@ def validate_config(config):
 
 
 def _env_enablement():
-    if not (get_scoped_secret("MANYCHAT_API_TOKEN", "").strip() and get_scoped_secret("MESSENGER_WEBHOOK_SECRET", "").strip()):
+    if not get_scoped_secret("MANYCHAT_API_TOKEN", "").strip():
         return None
-    return seed_extra_from_env((("MANYCHAT_API_TOKEN", "token", None), ("MESSENGER_WEBHOOK_SECRET", "webhook_secret", None)))
+    return seed_extra_from_env((("MANYCHAT_API_TOKEN", "token", None),))
 
 
 def register(ctx):
     ctx.register_platform(
+        name="messenger_ingress", label="ManyChat authenticated ingress bridge",
+        adapter_factory=MessengerIngressAdapter, check_fn=lambda: True,
+        platform_hint="Internal authenticated webhook handoff; not a customer messaging destination.",
+        allow_update_command=False,
+    )
+    ctx.register_platform(
         name="messenger", label="Facebook Messenger (ManyChat)",
         adapter_factory=MessengerAdapter, check_fn=check_requirements,
         validate_config=validate_config,
-        required_env=["MANYCHAT_API_TOKEN", "MESSENGER_WEBHOOK_SECRET"],
+        required_env=["MANYCHAT_API_TOKEN"],
         env_enablement_fn=_env_enablement,
         allowed_users_env="MESSENGER_ALLOWED_USERS",
         allow_all_env="MESSENGER_ALLOW_ALL_USERS",
@@ -186,3 +182,51 @@ def register(ctx):
         platform_hint="You are answering a Facebook Messenger customer via ManyChat. Use plain text. Only text replies are supported.",
         emoji="💬",
     )
+
+
+class MessengerIngressAdapter(BasePlatformAdapter):
+    """Native Hermes webhook deliver_only destination. Never opens a socket.
+
+    The webhook core authenticates/filter requests before calling send(). This
+    bridge only persists inbound text; the messenger worker owns customer turns.
+    """
+    def __init__(self, config):
+        super().__init__(config, Platform("messenger_ingress"))
+
+    async def connect(self, *, is_reconnect=False):
+        self._mark_connected()
+        return True
+
+    async def disconnect(self):
+        self._mark_disconnected()
+
+    async def get_chat_info(self, chat_id):
+        return {"name": str(chat_id), "type": "dm"}
+
+    async def send(self, chat_id, content, reply_to=None, metadata=None):
+        from .store import Conflict, Full
+        import sqlite3
+        runner = self.gateway_runner
+        if runner is None:
+            return SendResult(success=False, error="messenger_unavailable", retryable=False)
+        profile = getattr(self, "_owner_profile", None)
+        target = runner._authorization_adapter(Platform("messenger"), profile)
+        if target is None or not getattr(target, "_ready", False):
+            return SendResult(success=False, error="messenger_unavailable", retryable=False)
+        message_id = (metadata or {}).get("thread_id")
+        if message_id == "{message_id}":
+            message_id = None
+        try:
+            payload = normalize_payload({"contact_id": str(chat_id), "message": content, "message_id": message_id})
+            receipt = target.inbox.enqueue(payload)
+        except (ValueError, UnicodeError):
+            return SendResult(success=False, error="invalid_payload", retryable=False)
+        except Conflict:
+            return SendResult(success=False, error="id_conflict", retryable=False)
+        except (Full, sqlite3.Error):
+            return SendResult(success=False, error="inbox_unavailable", retryable=False)
+        target._wake.set()
+        return SendResult(success=True, message_id=receipt.id, raw_response={"duplicate": receipt.duplicate})
+
+    def _send_retry_is_final(self, result):
+        return True
